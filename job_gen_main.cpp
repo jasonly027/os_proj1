@@ -1,8 +1,11 @@
 #include <cstdlib>
 #include <iostream>
-#include <random>
+
+#include "job_gen.h"
 
 using std::cout, std::cerr, std::atoi, std::exit;
+
+using proj1::JobGen;
 
 static constexpr int kDefaultMaxBurstTime = 40;
 
@@ -19,16 +22,12 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-    const int max_burst_time =
-        (argc == 3) ? atoi(argv[2]) : kDefaultMaxBurstTime;
-    if (max_burst_time <= 0) {
-        cerr << "Invalid max_burst_time\n";
-        exit(1);
-    }
+    JobGen gen = [&]() {
+        if (argc == 3)
+            if (const int max_burst_time = atoi(argv[2]); max_burst_time > 0)
+                return JobGen(1, max_burst_time);
+        return JobGen();
+    }();
 
-    std::mt19937 gen(std::random_device{}());
-    std::uniform_int_distribution<> rand(1, max_burst_time);
-    for (int job_num = 1; job_num <= num_jobs; ++job_num) {
-        cout << "Job" << job_num << '\n' << rand(gen) << '\n';
-    }
+    gen(num_jobs);
 }

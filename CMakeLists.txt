@@ -13,4 +13,4 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(job_gen job_gen.cpp)
+add_executable(job_gen job_gen_main.cpp)
