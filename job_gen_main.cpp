@@ -23,9 +23,14 @@ int main(int argc, char** argv) {
     }
 
     JobGen gen = [&]() {
-        if (argc == 3)
-            if (const int max_burst_time = atoi(argv[2]); max_burst_time > 0)
-                return JobGen(1, max_burst_time);
+        if (argc == 3) {
+            const int max_burst_time = atoi(argv[2]);
+            if (max_burst_time <= 0) {
+                cerr << "Invalid max_burst_time\n";
+                exit(1);
+            }
+            return JobGen(1, max_burst_time);
+        }
         return JobGen();
     }();
 
