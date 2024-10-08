@@ -8,6 +8,7 @@ using std::cout, std::cerr, std::atoi, std::exit;
 using proj1::JobGen;
 
 int main(int argc, char** argv) {
+    // Print guide if no arguments
     if (argc != 2 && argc != 3) {
         cout << "Usage: " << argv[0]
              << " num_jobs [max_burst_time=" << JobGen::kDefaultMaxBurstTime
@@ -21,6 +22,7 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
+    // If user provides max_burst_time argument, use it
     JobGen gen = [&]() {
         if (argc == 3) {
             const int max_burst_time = atoi(argv[2]);

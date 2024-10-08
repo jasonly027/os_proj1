@@ -11,6 +11,7 @@ JobGen::JobGen(int a, int b, std::ostream& oss)
     assert(a <= b && "b must be >= than a");
 }
 
+// Construct with default ranges
 JobGen::JobGen(std::ostream& oss)
     : JobGen(kDefaultMinBurstTime, kDefaultMaxBurstTime, oss) {}
 
@@ -22,9 +23,7 @@ void JobGen::operator()(int n) {
 
 // get/set output stream
 const std::ostream& JobGen::oss() const { return oss_; }
-
 std::ostream& JobGen::oss() { return oss_; }
-
 void JobGen::oss(std::ostream& oss) { oss_ = oss; }
 
 }  // namespace proj1
