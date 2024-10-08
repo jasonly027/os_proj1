@@ -13,4 +13,7 @@ else()
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-add_executable(job_gen job_gen_main.cpp)
+add_executable(${PROJECT_NAME})
+add_executable(job_gen)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/src)
