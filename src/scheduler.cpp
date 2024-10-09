@@ -1,20 +1,24 @@
 #include "scheduler.h"
 
 #include <fstream>
-#include <iostream>
+#include <functional>
+#include <queue>
 
-using std::string, std::ifstream, std::cerr;
+using std::string, std::ifstream;
 
 namespace proj1 {
 
 // Construct a Job with job number n and burst time time
 Job::Job(int n, int time) : n_(n), remaining_time_(time), done_(false) {}
 
-// Work on this job for a set time. Set done_ to true
-// when the job is finished.
-void Job::do_for(int time) {
-    remaining_time_ -= std::min(time, remaining_time_);
+// Work on this job for the set time. Set done_ to true
+// when the job is finished. Return time used.
+int Job::do_for(int time) {
+    int time_used = std::min(time, remaining_time_);
+    remaining_time_ -= time_used;
+
     if (remaining_time_ == 0) done_ = true;
+    return time_used;
 }
 
 // member getters
@@ -22,32 +26,7 @@ int Job::n() const { return n_; }
 int Job::remaining_time() const { return remaining_time_; }
 bool Job::done() const { return done_; }
 
-/////////////////////////////////////////
-//                                     //
-// Algorithm implemenations start here //
-//                                     //
-/////////////////////////////////////////
-
-void FCFS::load_impl(ifstream& ifs) {
-    // Parse jobs from stream and append them to the end of the queue
-    while (true) {
-        string job_name;
-        string burst_time;
-        if (!(ifs >> job_name)) return;
-        if (!(ifs >> burst_time)) {
-            cerr << "Job parse failed\n";
-            return;
-        }
-
-        auto job = parse_job(job_name, burst_time);
-        if (!job.has_value()) {
-            cerr << "Job parse failed\n";
-            return;
-        }
-
-        queue_.push_back(std::move(job.value()));
-    }
-}
+void FCFS::push_impl(int name, int time) { queue_.emplace_back(name, time); }
 
 double FCFS::run_impl() {
     int elapsed = 0;
@@ -63,12 +42,42 @@ double FCFS::run_impl() {
 
         const int start = elapsed;
 
-        const int duration = job.remaining_time();
-        job.do_for(duration);
-        elapsed += duration;
+        elapsed += job.do_for(job.remaining_time());
 
-        // At each turn, record the job number, start/end time,
-        // and if the job was completed on this turn.
+        // Log job#, start/end time, if job was completed
+        log(job, start, elapsed);
+        total_time += elapsed;
+    }
+
+    // Return average turnaround time
+    return total_time / num_jobs;
+}
+
+SJF::SJF()
+    : heap_([](Job a, Job b) {
+          // Set comparater so it's a min heap based off burst time
+          return a.remaining_time() > b.remaining_time();
+      }) {}
+
+void SJF::push_impl(int name, int time) { heap_.emplace(name, time); }
+
+double SJF::run_impl() {
+    int elapsed = 0;
+
+    double total_time = 0;
+    const int num_jobs = heap_.size();
+
+    // Pop shortest jobs from min heap and do them
+    // till completion.
+    while (!heap_.empty()) {
+        Job job = heap_.top();
+        heap_.pop();
+
+        const int start = elapsed;
+
+        elapsed += job.do_for(job.remaining_time());
+
+        // Log job#, start/end time, if job was completed
         log(job, start, elapsed);
         total_time += elapsed;
     }
