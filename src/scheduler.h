@@ -5,6 +5,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <istream>
 #include <list>
 #include <optional>
 #include <queue>
@@ -16,7 +17,7 @@
 namespace proj1 {
 class Job {
    public:
-    explicit Job(int n, int time);
+    Job(int n, int time);
 
     int do_for(int time);
 
@@ -31,6 +32,8 @@ class Job {
 };
 
 struct Log {
+    Log(int n, int start, int end, bool done);
+
     int job_n;
     int start;
     int end;
@@ -43,9 +46,16 @@ class Scheduler {
    public:
     virtual ~Scheduler() = default;
 
-    void load(const char* file) { load(std::ifstream(file)); }
+    void load(const char* file) {
+        std::ifstream ifs(file);
+        if (!ifs.is_open()) {
+            std::cerr << "Stream failed to open\n";
+            return;
+        }
+        load(std::move(ifs));
+    }
 
-    void load(std::ifstream ifs) {
+    void load(std::istream&& ifs) {
         auto* me = static_cast<CRTP*>(this);
         // Parse jobs from stream and push them to jobs container
         while (true) {
@@ -74,7 +84,7 @@ class Scheduler {
 
     double run() { return static_cast<CRTP*>(this)->run_impl(); }
 
-    void print(int avg_turnaround) const {
+    void print(double avg_turnaround) const {
         print_logs();
         std::cout << "Average turnaround was " << avg_turnaround << '\n';
     }
@@ -136,7 +146,7 @@ class FCFS : public Scheduler<FCFS> {
 
 class SJF : public Scheduler<SJF> {
    public:
-    explicit SJF();
+    SJF();
 
    private:
     void push_impl(int name, int time);

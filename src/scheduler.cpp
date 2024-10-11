@@ -26,6 +26,9 @@ int Job::n() const { return n_; }
 int Job::remaining_time() const { return remaining_time_; }
 bool Job::done() const { return done_; }
 
+Log::Log(int n, int start, int end, bool done)
+    : job_n(n), start(start), end(end), done(done) {}
+
 void FCFS::push_impl(int name, int time) { queue_.emplace_back(name, time); }
 
 double FCFS::run_impl() {
