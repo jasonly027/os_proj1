@@ -3,6 +3,7 @@
 #include <fstream>
 #include <functional>
 #include <queue>
+#include <string>
 
 using std::string, std::ifstream;
 

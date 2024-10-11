@@ -46,6 +46,8 @@ class Scheduler {
    public:
     virtual ~Scheduler() = default;
 
+    static std::string name() { return CRTP::name_impl(); }
+
     void load(const char* file) {
         std::ifstream ifs(file);
         if (!ifs.is_open()) {
@@ -137,11 +139,13 @@ class Scheduler {
 
 class FCFS : public Scheduler<FCFS> {
    private:
+    constexpr static std::string name_impl() { return FCFS::kName; }
     void push_impl(int name, int time);
     double run_impl();
 
     friend Scheduler<FCFS>;
     std::deque<Job> queue_;
+    static constexpr const char* kName = "FCFS";
 };
 
 class SJF : public Scheduler<SJF> {
@@ -149,6 +153,7 @@ class SJF : public Scheduler<SJF> {
     SJF();
 
    private:
+    constexpr static std::string name_impl() { return SJF::kName; }
     void push_impl(int name, int time);
     double run_impl();
 
@@ -156,12 +161,17 @@ class SJF : public Scheduler<SJF> {
     std::priority_queue<Job, std::vector<Job>,
                         std::function<bool(const Job&, const Job&)>>
         heap_;
+    static constexpr const char* kName = "SJF";
 };
 
 // RR is defined in header file because it's a template class
 template <int TimeSlice>
 class RR : public Scheduler<RR<TimeSlice>> {
    private:
+    static std::string name_impl() {
+        return std::string("RR") + std::to_string(TimeSlice);
+    }
+
     void push_impl(int name, int time) { list_.emplace_back(name, time); }
 
     double run_impl() {

@@ -6,29 +6,14 @@
 #include "scheduler.h"
 
 using proj1::FCFS, proj1::SJF, proj1::RR, proj1::JobGen;
-using std::cout, std::stringstream, std::array;
-
-template <typename... Scheduler>
-void run(const char* file);
-
-template <typename... Scheduler>
-void analyze(int num_jobs);
-
-int main() {
-    // Testing Part 1b
-    for (const char* file : {"job5.txt", "job10.txt", "job15.txt"})
-        run<FCFS, SJF, RR<2>, RR<5>>(file);
-
-    // Part 3 performance analysis
-    for (const int jobs : {5, 10, 15}) analyze<FCFS, SJF, RR<2>, RR<5>>(jobs);
-}
+using std::cout, std::stringstream;
 
 template <typename... Scheduler>
 void run(const char* file) {
     cout << "\n[Testing with " << file << "]\n";
-    (([&]() {
+    (([&] {
          Scheduler scheduler;
-         cout << '\n' << typeid(scheduler).name() << '\n';
+         cout << '\n' << Scheduler::name() << '\n';
 
          scheduler.load(file);
          scheduler.print(scheduler.run());
@@ -60,7 +45,16 @@ void analyze(int jobs) {
 
          avg /= kTrials;
 
-         cout << avg << '\n';
+         cout << Scheduler::name() << ": " << avg << '\n';
      }()),
      ...);
+}
+
+int main() {
+    // Testing Part 1b
+    for (const char* file : {"job5.txt", "job10.txt", "job15.txt"})
+        run<FCFS, SJF, RR<2>, RR<5>>(file);
+
+    // Part 3 performance analysis
+    for (const int jobs : {5, 10, 15}) analyze<FCFS, SJF, RR<2>, RR<5>>(jobs);
 }
