@@ -46,8 +46,10 @@ class Scheduler {
    public:
     virtual ~Scheduler() = default;
 
+    // returns the name of the algorithm being used
     static std::string name() { return CRTP::name_impl(); }
 
+    // load overload that opens a input file stream with the supplied file name
     void load(const char* file) {
         std::ifstream ifs(file);
         if (!ifs.is_open()) {
@@ -57,9 +59,9 @@ class Scheduler {
         load(std::move(ifs));
     }
 
+    // Parse jobs from stream and push them to jobs container
     void load(std::istream&& ifs) {
         auto* me = static_cast<CRTP*>(this);
-        // Parse jobs from stream and push them to jobs container
         while (true) {
             std::string name_str;
             std::string time_str;
@@ -68,14 +70,14 @@ class Scheduler {
 
             // Return if job has no accompanying burst time
             if (!(ifs >> time_str)) {
-                std::cerr << "Job parse failed\n";
+                std::cerr << "Job parse erro\n";
                 return;
             }
 
             const auto opt = parse_name_time(name_str, time_str);
-            // Return if parse failed
+            // Return if parse error
             if (!opt) {
-                std::cerr << "Job parse failed\n";
+                std::cerr << "Job parse error\n";
                 return;
             }
             const auto [name, time] = *opt;
@@ -84,13 +86,16 @@ class Scheduler {
         }
     }
 
+    // Start processing jobs
     double run() { return static_cast<CRTP*>(this)->run_impl(); }
 
+    // Print avg turnaround time
     void print(double avg_turnaround) const {
         print_logs();
         std::cout << "Average turnaround was " << avg_turnaround << '\n';
     }
 
+    // Print logs
     void print_logs() const {
         // Print table header
         std::puts("\n| Job# | Start Time | End Time | Job Completion        |");
