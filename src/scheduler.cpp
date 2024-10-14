@@ -58,7 +58,7 @@ double FCFS::run_impl() {
 }
 
 SJF::SJF()
-    : heap_([](Job a, Job b) {
+    : heap_([](const Job& a, const Job& b) {
           // Set comparater so it's a min heap based off burst time
           return a.remaining_time() > b.remaining_time();
       }) {}
