@@ -10,6 +10,8 @@ using std::cout, std::stringstream;
 template <typename... Scheduler>
 void run(const char* file) {
     cout << "\n[Testing with " << file << "]\n";
+
+    // Expands to use every generic type Scheduler specified
     (([&] {
          Scheduler scheduler;
          cout << '\n' << Scheduler::name() << '\n';
@@ -25,6 +27,7 @@ void analyze(int jobs) {
     cout << "\n" << jobs << " jobs\n\n";
     static constexpr int kTrials = 20;
 
+    // Generate 20 datasets, one for each trial
     JobGen gen;
     stringstream streams[kTrials];
     for (auto& stream : streams) {
@@ -32,11 +35,14 @@ void analyze(int jobs) {
         gen(jobs);
     }
 
+    // Expands to use every generic type Scheduler specified
     (([&]() {
          double avg = 0;
 
          for (const stringstream& stream : streams) {
              Scheduler scheduler;
+             // Makes a copy of the stream so other scheduler impls
+             // can still use it
              scheduler.load(stringstream(stream.str()));
 
              avg += scheduler.run();
